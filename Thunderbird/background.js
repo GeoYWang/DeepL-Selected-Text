@@ -11,6 +11,7 @@ browser.runtime.onInstalled.addListener(details => {
   }
 });
 
+
 async function goDeepL(text, allowReload = true)
 {
   const result = await messenger.storage.local.get(['target', 'width', 'height', 'source_lang', 'target_lang']);
@@ -18,6 +19,16 @@ async function goDeepL(text, allowReload = true)
   let target_lang = result.target_lang ?? '?';
   if (target_lang == '?') {
     target_lang = chrome.i18n.getUILanguage().toLowerCase();
+    const langNormalizationMap = {
+      'zh-cn': 'zh',
+      'zh-tw': 'zh',
+      'zh-hk': 'zh',
+      // 'zh-hans': 'zh',  // not returned by getUILanguage(), added for completeness
+      // 'zh-hant': 'zh',  // same
+      // 'en-us': 'en-us',  // DeepL does accept en-us/en-gb as targets, keep as-is
+      // 'pt-br': 'pt-br',  // same
+    };
+    target_lang = langNormalizationMap[target_lang] ?? target_lang;
   }
 
   let source_lang = result.source_lang ?? '?';
